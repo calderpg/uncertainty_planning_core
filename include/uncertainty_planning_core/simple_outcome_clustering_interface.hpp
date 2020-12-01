@@ -8,14 +8,8 @@
 
 #include <common_robotics_utilities/math.hpp>
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
+#include <uncertainty_planning_core/ros_integration.hpp>
 #include <uncertainty_planning_core/simple_simulator_interface.hpp>
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-#include <visualization_msgs/msg/marker_array.hpp>
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-#include <visualization_msgs/MarkerArray.h>
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
 
 namespace uncertainty_planning_core
 {
@@ -28,12 +22,6 @@ protected:
       ::SimpleRobotModelInterface<Configuration, ConfigAlloc>;
 
 public:
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  using MarkerArray = visualization_msgs::msg::MarkerArray;
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  using MarkerArray = visualization_msgs::MarkerArray;
-#endif
-
   virtual ~SimpleOutcomeClusteringInterface() {}
 
   virtual int32_t GetDebugLevel() const = 0;

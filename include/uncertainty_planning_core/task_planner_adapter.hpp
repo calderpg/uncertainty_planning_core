@@ -13,21 +13,11 @@
 #include <random>
 #include <atomic>
 #include <Eigen/Geometry>
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/color_rgba.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-#include <ros/ros.h>
-#include <std_msgs/ColorRGBA.h>
-#include <visualization_msgs/MarkerArray.h>
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
 #include <common_robotics_utilities/math.hpp>
 #include <common_robotics_utilities/openmp_helpers.hpp>
 #include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/print.hpp>
+#include <uncertainty_planning_core/ros_integration.hpp>
 #include <uncertainty_planning_core/uncertainty_planning_core.hpp>
 #include <omp.h>
 
@@ -333,14 +323,6 @@ private:
   using TaskPlanningPolicyQuery = PolicyQueryResult<State>;
   using TaskPlanningSpace
       = UncertaintyPlanningSpace<State, StateSerializer, StateAlloc, PRNG>;
-
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  using ColorRGBA = std_msgs::msg::ColorRGBA;
-  using MarkerArray = visualization_msgs::msg::MarkerArray;
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  using ColorRGBA = std_msgs::ColorRGBA;
-  using MarkerArray = visualization_msgs::MarkerArray;
-#endif
 
   static void
   DeleteSamplerPtrFn(TaskPlannerSampling<State>* ptr)

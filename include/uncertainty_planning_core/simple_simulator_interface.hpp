@@ -16,15 +16,7 @@
 #include <common_robotics_utilities/print.hpp>
 #include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-#include <std_msgs/msg/color_rgba.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-#include <std_msgs/ColorRGBA.h>
-#include <visualization_msgs/MarkerArray.h>
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
+#include <uncertainty_planning_core/ros_integration.hpp>
 #include <omp.h>
 
 namespace uncertainty_planning_core
@@ -149,14 +141,6 @@ protected:
       ::SimpleRobotModelInterface<Configuration, ConfigAlloc>;
 
 public:
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  using ColorRGBA = std_msgs::msg::ColorRGBA;
-  using MarkerArray = visualization_msgs::msg::MarkerArray;
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  using ColorRGBA = std_msgs::ColorRGBA;
-  using MarkerArray = visualization_msgs::MarkerArray;
-#endif
-
   virtual ~SimpleSimulatorInterface() {}
 
   virtual int32_t GetDebugLevel() const = 0;

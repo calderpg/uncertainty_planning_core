@@ -22,20 +22,12 @@
 #include <common_robotics_utilities/simple_knearest_neighbors.hpp>
 #include <common_robotics_utilities/simple_rrt_planner.hpp>
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
+#include <uncertainty_planning_core/ros_integration.hpp>
 #include <uncertainty_planning_core/simple_sampler_interface.hpp>
 #include <uncertainty_planning_core/simple_outcome_clustering_interface.hpp>
 #include <uncertainty_planning_core/uncertainty_planner_state.hpp>
 #include <uncertainty_planning_core/simple_simulator_interface.hpp>
 #include <uncertainty_planning_core/execution_policy.hpp>
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-#include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
 #include <common_robotics_utilities/conversions.hpp>
 #include <omp.h>
 
@@ -303,15 +295,6 @@ protected:
   using StateDistanceFunction
       = std::function<double(
           const UncertaintyPlanningState&, const UncertaintyPlanningState&)>;
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  using ColorRGBA = std_msgs::msg::ColorRGBA;
-  using Marker = visualization_msgs::msg::Marker;
-  using MarkerArray = visualization_msgs::msg::MarkerArray;
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  using ColorRGBA = std_msgs::ColorRGBA;
-  using Marker = visualization_msgs::Marker;
-  using MarkerArray = visualization_msgs::MarkerArray;
-#endif
 
   // Helper classes
   class SimulateParticlesResult

@@ -18,18 +18,10 @@
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
 #include <common_robotics_utilities/zlib_helpers.hpp>
 #include <uncertainty_planning_core/execution_policy.hpp>
+#include <uncertainty_planning_core/ros_integration.hpp>
 #include <uncertainty_planning_core/simple_simulator_interface.hpp>
 #include <uncertainty_planning_core/uncertainty_planner_state.hpp>
 #include <uncertainty_planning_core/uncertainty_contact_planning.hpp>
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-#include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
 
 namespace uncertainty_planning_core
 {
