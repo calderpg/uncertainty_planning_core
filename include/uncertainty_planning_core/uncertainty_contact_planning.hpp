@@ -158,16 +158,14 @@ public:
   }
 
   explicit ExecutionTimeLimit(const double seconds)
-    : ExecutionTimeLimit(seconds, std::make_shared<rclcpp::Clock>())
-  {
-  }
+    : ExecutionTimeLimit(seconds, std::make_shared<rclcpp::Clock>()) {}
 
   double Seconds() const { return seconds_; }
 
   rclcpp::Clock& Clock() { return *clock_; }
 
 private:
-  double seconds_;
+  double seconds_ = 0.0;
   rclcpp::Clock::SharedPtr clock_;
 };
 #elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
@@ -183,8 +181,9 @@ public:
   }
 
   double Seconds() const { return seconds_; }
+
 private:
-  double seconds_;
+  double seconds_ = 0.0;
 };
 #endif
 
@@ -201,13 +200,12 @@ private:
 
 public:
   explicit ExecutionTimer(const ExecutionTimeLimit& time_limit)
-    : time_limit_(time_limit)
-  {
-  }
+    : time_limit_(time_limit) {}
 
   double Start()
   {
-    if (start_time_) {
+    if (start_time_)
+    {
       throw std::logic_error("Execution timer already started");
     }
     start_time_ = OwningMaybe<double>(CurrentTime());
@@ -216,7 +214,8 @@ public:
 
   double Stop()
   {
-    if (stop_time_) {
+    if (stop_time_)
+    {
       throw std::logic_error("Execution timer already stopped");
     }
     stop_time_ = OwningMaybe<double>(CurrentTime());
@@ -1698,7 +1697,7 @@ public:
     for (uint32_t idx = 0; idx < num_executions; idx++)
     {
       Log("Starting policy execution " + std::to_string(idx) + "...", 1);
-      ExecutionTimer exec_timer{exec_time_limit};
+      ExecutionTimer exec_timer(exec_time_limit);
       const std::function<bool(void)> policy_exec_termination_fn = [&] ()
       {
         return exec_timer.IsExpired();
