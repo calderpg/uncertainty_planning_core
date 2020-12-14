@@ -27,12 +27,12 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Werror)
 add_compile_options(-Wconversion)
-#add_compile_options(-Wshadow)
+add_compile_options(-Wshadow)
 add_compile_options(-O3)
 add_compile_options(-g)
 add_compile_options(-flto)
-#add_compile_options(-Werror=non-virtual-dtor)
-#add_compile_options(-Wold-style-cast)
+add_compile_options(-Werror=non-virtual-dtor)
+add_compile_options(-Wold-style-cast)
 add_compile_options(-Wmaybe-uninitialized)
 add_compile_options(-march=native)
 
@@ -64,9 +64,8 @@ set(UNCERTAINTY_PLANNING_CORE_SOURCES
 ################
 
 add_library(${PROJECT_NAME} ${UNCERTAINTY_PLANNING_CORE_SOURCES})
-ament_target_dependencies(${PROJECT_NAME}
-  common_robotics_utilities rclcpp visualization_msgs
-)
+ament_target_dependencies(${PROJECT_NAME} common_robotics_utilities)
+ament_target_dependencies(${PROJECT_NAME} SYSTEM rclcpp visualization_msgs)
 
 ####################################################
 # Example of task-level planning using the adapter #
@@ -75,8 +74,9 @@ ament_target_dependencies(${PROJECT_NAME}
 add_executable(task_planner_adapter_example
                src/task_planner_adapter_example.cpp)
 ament_target_dependencies(task_planner_adapter_example
-  common_robotics_utilities rclcpp visualization_msgs
-)
+                          common_robotics_utilities)
+ament_target_dependencies(task_planner_adapter_example
+                          SYSTEM rclcpp visualization_msgs)
 target_link_libraries(task_planner_adapter_example ${PROJECT_NAME})
 
 #############
