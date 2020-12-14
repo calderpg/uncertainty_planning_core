@@ -51,7 +51,7 @@ struct PLANNING_AND_EXECUTION_OPTIONS
   uint32_t policy_action_attempt_count = 0u;
   // Execution limits
   uint32_t max_exec_actions = 0u;
-  ExecutionTimeLimit max_policy_exec_time = 0.0;
+  ExecutionTimeLimit max_policy_exec_time{0.0};
   // Control flags
   int32_t debug_level = 0;
   bool use_contact = false;
@@ -129,9 +129,11 @@ inline PLANNING_AND_EXECUTION_OPTIONS GetOptions(
       = static_cast<uint32_t>(
           node->declare_parameter("max_exec_actions",
               static_cast<int>(options.max_exec_actions)));
-  options.max_policy_exec_time = ExecutionTimeLimit(
-      node->declare_parameter("max_policy_exec_time", 0.0),
-      node->get_clock());
+  options.max_policy_exec_time
+      = ExecutionTimeLimit(
+          node->declare_parameter("max_policy_exec_time",
+              options.max_policy_exec_time.Seconds()),
+          node->get_clock());
   options.policy_action_attempt_count
       = static_cast<uint32_t>(
           node->declare_parameter("policy_action_attempt_count",
@@ -203,8 +205,8 @@ inline PLANNING_AND_EXECUTION_OPTIONS GetOptions(
           nhp.param(std::string("max_exec_actions"),
                     static_cast<int>(options.max_exec_actions)));
   options.max_policy_exec_time
-      = nhp.param(std::string("max_policy_exec_time"),
-                  options.max_policy_exec_time);
+      = ExecutionTimeLimit(nhp.param(std::string("max_policy_exec_time"),
+                                     options.max_policy_exec_time.Seconds()));
   options.policy_action_attempt_count
       = static_cast<uint32_t>(
           nhp.param(std::string("policy_action_attempt_count"),

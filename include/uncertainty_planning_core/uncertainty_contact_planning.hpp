@@ -141,97 +141,130 @@ public:
 };
 
 #if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-struct ExecutionTimeLimit {
-  ExecutionTimeLimit(double _secs)
-    : secs(_secs), clock(std::make_shared<rclcpp::Clock>())
-  {
-  }
-
-  ExecutionTimeLimit(double _secs, rclcpp::Clock::SharedPtr _clock)
-    : secs(_secs), clock(_clock)
-  {
-  }
-
-  double secs;
-  rclcpp::Clock::SharedPtr clock;
-};
-
-std::ostream& operator<<(
-    std::ostream& strm, const ExecutionTimeLimit& time_limit)
+class ExecutionTimeLimit
 {
-  return strm << time_limit.secs;
-}
+public:
+  ExecutionTimeLimit(const double seconds, rclcpp::Clock::SharedPtr clock)
+    : seconds_(seconds), clock_(clock)
+  {
+    if (seconds_ < 0.0)
+    {
+      throw std::invalid_argument("Time limit cannot be less than zero seconds");
+    }
+    if (!clock_)
+    {
+      throw std::invalid_argument("No valid clock supplied");
+    }
+  }
+
+  explicit ExecutionTimeLimit(const double seconds)
+    : ExecutionTimeLimit(seconds, std::make_shared<rclcpp::Clock>())
+  {
+  }
+
+  double Seconds() const { return seconds_; }
+
+  rclcpp::Clock& Clock() { return *clock_; }
+
+private:
+  double seconds_;
+  rclcpp::Clock::SharedPtr clock_;
+};
 #elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-using ExecutionTimeLimit = double;
+class ExecutionTimeLimit
+{
+public:
+  explicit ExecutionTimeLimit(const double seconds) : seconds_(seconds)
+  {
+    if (seconds_ < 0.0)
+    {
+      throw std::invalid_argument("Time limit cannot be less than zero seconds");
+    }
+  }
+
+  double Seconds() const { return seconds_; }
+private:
+  double seconds_;
+};
 #endif
 
+inline std::ostream& operator<<(
+  std::ostream& strm, const ExecutionTimeLimit& time_limit)
+{
+  return strm << time_limit.Seconds();
+}
+
 class ExecutionTimer {
+private:
+  template<typename T>
+  using OwningMaybe = common_robotics_utilities::OwningMaybe<T>;
+
 public:
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  inline ExecutionTimer(ExecutionTimeLimit time_limit)
-    : clock_(time_limit.clock), time_limit_(time_limit.secs)
-  {
-  }
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  inline ExecutionTimer(ExecutionTimeLimit time_limit)
+  explicit ExecutionTimer(const ExecutionTimeLimit& time_limit)
     : time_limit_(time_limit)
   {
   }
-#endif
 
-  inline void start()
+  double Start()
   {
-    if (start_time_ >= 0.0) {
+    if (start_time_) {
       throw std::logic_error("Execution timer already started");
     }
-    start_time_ = current_time();
+    start_time_ = OwningMaybe<double>(CurrentTime());
+    return start_time_.Value();
   }
 
-  inline void stop()
+  double Stop()
   {
-    if (stop_time_ >= 0.0) {
+    if (stop_time_) {
       throw std::logic_error("Execution timer already stopped");
     }
-    stop_time_ = current_time();
+    stop_time_ = OwningMaybe<double>(CurrentTime());
+    return stop_time_.Value();
   }
 
-  inline bool expired() {
-    if (time_limit_ > 0.0)
+  bool IsExpired() const
+  {
+    if (!start_time_)
     {
-      const double elapsed_time = current_time() - start_time_;
-      return elapsed_time >= time_limit_;
+      return false;
     }
-    return false;
+    if (time_limit_.Seconds() == 0.0)
+    {
+      return false;
+    }
+    const double elapsed_time = CurrentTime() - start_time_.Value();
+    return (elapsed_time >= time_limit_.Seconds());
   }
 
-  inline double start_time() {
-    return start_time_;
-  }
+  double TimeLimit() const { return time_limit_.Seconds(); }
 
-  inline double stop_time() {
-    return stop_time_;
-  }
+  OwningMaybe<double> StartTime() const { return start_time_; }
 
-  inline double duration() {
-    return stop_time_ - start_time_;
+  OwningMaybe<double> StopTime() const { return stop_time_; }
+
+  OwningMaybe<double> ExecutionDuration() const
+  {
+    if (start_time_ && stop_time_)
+    {
+      return OwningMaybe<double>(stop_time_.Value() - start_time_.Value());
+    }
+    return OwningMaybe<double>();
   }
 
 private:
+  double CurrentTime() const
+  {
 #if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
-  double current_time() {
-    return clock_->now().seconds();
-  }
-
-  rclcpp::Clock::SharedPtr clock_;
+    return time_limit_.Clock().now().seconds();
 #elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  double current_time() {
     return ros::Time::now().toSec();
-  }
 #endif
+  }
 
-  double start_time_{-1.0};
-  double stop_time_{-1.0};
-  double time_limit_;
+  OwningMaybe<double> start_time_;
+  OwningMaybe<double> stop_time_;
+  mutable ExecutionTimeLimit time_limit_;
 };
 
 template<typename Configuration, typename ConfigSerializer,
@@ -1594,7 +1627,7 @@ public:
       const bool link_runtime_states_to_planned_parent,
       const Configuration& start, const Configuration& goal,
       const UncertaintyPlanningPolicyActionExecutionFunction& move_fn,
-      const uint32_t num_executions, const ExecutionTimeLimit exec_time_limit,
+      const uint32_t num_executions, const ExecutionTimeLimit& exec_time_limit,
       const DisplayFunction& display_fn, const double policy_marker_size,
       const bool wait_for_user, const double draw_wait) const
   {
@@ -1625,7 +1658,7 @@ public:
       const Configuration& start,
       const std::function<bool(const Configuration&)>& user_goal_check_fn,
       const UncertaintyPlanningPolicyActionExecutionFunction& move_fn,
-      const uint32_t num_executions, const ExecutionTimeLimit exec_time_limit,
+      const uint32_t num_executions, const ExecutionTimeLimit& exec_time_limit,
       const DisplayFunction& display_fn, const double policy_marker_size,
       const bool wait_for_user, const double draw_wait) const
   {
@@ -1644,7 +1677,7 @@ public:
       const bool enable_cumulative_learning, const ConfigVector& start_configs,
       const std::function<bool(const Configuration&)>& user_goal_check_fn,
       const UncertaintyPlanningPolicyActionExecutionFunction& move_fn,
-      const ExecutionTimeLimit exec_time_limit,
+      const ExecutionTimeLimit& exec_time_limit,
       const DisplayFunction& display_fn, const double policy_marker_size,
       const bool wait_for_user, const double draw_wait) const
   {
@@ -1668,19 +1701,19 @@ public:
       ExecutionTimer exec_timer{exec_time_limit};
       const std::function<bool(void)> policy_exec_termination_fn = [&] ()
       {
-        return exec_timer.expired();
+        return exec_timer.IsExpired();
       };
-      exec_timer.start();
+      const double start_time = exec_timer.Start();
       const auto policy_execution = PerformSinglePolicyExecution(
           policy, allow_branch_jumping, link_runtime_states_to_planned_parent,
           start_configs.at(idx), move_fn, user_goal_check_fn,
           policy_exec_termination_fn, display_fn, policy_marker_size,
           wait_for_user);
-      exec_timer.stop();
-      Log("Started policy exec @ " + std::to_string(exec_timer.start_time())
-          + " finished policy exec @ " + std::to_string(exec_timer.stop_time()),
+      const double stop_time = exec_timer.Stop();
+      Log("Started policy exec @ " + std::to_string(start_time)
+          + " finished policy exec @ " + std::to_string(stop_time),
           1);
-      const double execution_seconds = exec_timer.duration();
+      const double execution_seconds = exec_timer.ExecutionDuration().Value();
       policy_execution_performance.at(idx) = PolicyExecutionPerformance(
           policy_execution.ExecutionSteps(), execution_seconds,
           policy_execution.ExecutionSuccess());
