@@ -12,7 +12,8 @@
 #error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
 #endif
 
-namespace uncertainty_planning_core {
+namespace uncertainty_planning_core
+{
 
 #if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
 using ColorRGBA = std_msgs::msg::ColorRGBA;
@@ -23,5 +24,7 @@ using ColorRGBA = std_msgs::ColorRGBA;
 using Marker = visualization_msgs::Marker;
 using MarkerArray = visualization_msgs::MarkerArray;
 #endif
+
+using DisplayFunction = std::function<void(const MarkerArray&)>;
 
 }  // namespace uncertainty_planning_core

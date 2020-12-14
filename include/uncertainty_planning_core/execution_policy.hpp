@@ -22,7 +22,6 @@
 namespace uncertainty_planning_core
 {
 
-using DisplayFunction = std::function<void(const MarkerArray&)>;
 using LoggingFunction
     = std::function<void(const std::string&, const int32_t)>;
 
