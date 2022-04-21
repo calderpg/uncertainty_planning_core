@@ -60,7 +60,7 @@ public:
     }
     PolicyGraph policy_graph(planner_tree.Size() + 1);
     // First pass, add all the nodes to the graph
-    for (const auto& current_tree_state : planner_tree.GetNodes())
+    for (const auto& current_tree_state : planner_tree.GetNodesImmutable())
     {
       const UncertaintyPlanningState& current_planner_state
           = current_tree_state.GetValueImmutable();
