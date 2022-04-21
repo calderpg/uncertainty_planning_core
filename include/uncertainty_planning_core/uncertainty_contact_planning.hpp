@@ -725,8 +725,8 @@ public:
     const auto nearests
         = common_robotics_utilities::simple_knearest_neighbors
             ::GetKNearestNeighborsParallel(
-                planner_nodes.GetNodes(), random_state, tree_state_distance_fn,
-                1);
+                planner_nodes.GetNodesImmutable(), random_state,
+                tree_state_distance_fn, 1);
     const int64_t best_index = nearests.at(0).Index();
     const double best_distance = nearests.at(0).Distance();
     logging_fn(
