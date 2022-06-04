@@ -220,10 +220,9 @@ public:
   {
     PolicyGraph updated_graph = initial_graph;
     #pragma omp parallel for
-    for (size_t idx = 0; idx < updated_graph.GetNodesImmutable().size(); idx++)
+    for (int64_t idx = 0; idx < updated_graph.Size(); idx++)
     {
-      PolicyGraphNode& current_node
-          = updated_graph.GetNodeMutable(static_cast<int64_t>(idx));
+      PolicyGraphNode& current_node = updated_graph.GetNodeMutable(idx);
       // Update all edges going out of the node
       for (auto& current_out_edge : current_node.GetOutEdgesMutable())
       {
@@ -302,8 +301,7 @@ public:
         = common_robotics_utilities::simple_graph_search
             ::PerformDijkstrasAlgorithm<UncertaintyPlanningState>(
                 initial_graph, start_index);
-    for (int64_t idx = 0;
-         idx < static_cast<int64_t>(complete_search_results.Size()); idx++)
+    for (int64_t idx = 0; idx < complete_search_results.Size(); idx++)
     {
       const int64_t previous_index
           = complete_search_results.GetPreviousIndex(idx);
@@ -488,9 +486,7 @@ public:
             preliminary_policy_graph, marginal_edge_weight,
             conformant_planning_threshold, edge_attempt_threshold);
     const auto distances = ExecutionPolicyGraphBuilder::ComputeNodeDistances(
-          intermediate_policy_graph,
-          static_cast<int64_t>(
-              intermediate_policy_graph.GetNodesImmutable().size()) - 1);
+          intermediate_policy_graph, intermediate_policy_graph.Size() - 1);
     return std::make_pair(intermediate_policy_graph, distances);
   }
 
@@ -504,9 +500,9 @@ public:
     for (int64_t idx = 0; idx < planning_tree.Size(); idx++)
     {
       const int64_t previous_index
-          = dijkstras_result.GetPreviousIndex(static_cast<int64_t>(idx));
+          = dijkstras_result.GetPreviousIndex(idx);
       const double distance
-          = dijkstras_result.GetNodeDistance(static_cast<int64_t>(idx));
+          = dijkstras_result.GetNodeDistance(idx);
       const UncertaintyPlanningTreeState& current_tree_state
           = planning_tree.GetNodeImmutable(idx);
       const int64_t parent_index = current_tree_state.GetParentIndex();
@@ -808,8 +804,7 @@ private:
     // If we are at a goal state, we do not command to the "virtual goal node"
     // that links the graph together since this node has no meaningful value in
     // cases of goal regions
-    else if (target_state_index
-             == static_cast<int64_t>(policy_graph_.Size()) - 1)
+    else if (target_state_index == (policy_graph_.Size() - 1))
     {
       Log("Already at a goal state " + std::to_string(current_state_index)
           + " - cannot proceed to virtual goal state - repeating transition "
@@ -908,9 +903,7 @@ private:
     std::vector<IndexAndDistance> per_thread_best_node(
         common_robotics_utilities::openmp_helpers::GetNumOmpThreads());
     #pragma omp parallel for
-    for (int64_t node_idx = 0;
-         node_idx < static_cast<int64_t>(
-             policy_graph_.GetNodesImmutable().size()) - 1;
+    for (int64_t node_idx = 0; node_idx < (policy_graph_.Size() - 1);
          node_idx++)
     {
       const PolicyGraphNode& current_node
