@@ -2040,7 +2040,7 @@ protected:
     const ColorRGBA forward_color = MakeColor(0.0f, 0.0f, 0.0f, 1.0f);
     const ColorRGBA backward_color = forward_color;
     const ColorRGBA blue_color = MakeColor(0.0f, 0.0f, 1.0f, 1.0f);
-    for (size_t idx = 0; idx < policy_graph.Size(); idx++)
+    for (int64_t idx = 0; idx < policy_graph.Size(); idx++)
     {
       const int64_t current_index = idx;
       const int64_t previous_index
