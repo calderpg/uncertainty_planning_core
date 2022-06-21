@@ -9,6 +9,11 @@
 #include <stdexcept>
 #include <functional>
 #include <queue>
+
+#if defined(_OPENMP)
+#include <omp.h>
+#endif
+
 #include <common_robotics_utilities/openmp_helpers.hpp>
 #include <common_robotics_utilities/print.hpp>
 #include <common_robotics_utilities/serialization.hpp>
@@ -900,8 +905,8 @@ private:
         ::IndexAndDistance;
     // Get the starting state - NOTE, we ignore the last node in the policy
     // graph, which is the virtual goal node
-    std::vector<IndexAndDistance> per_thread_best_node(
-        common_robotics_utilities::openmp_helpers::GetNumOmpThreads());
+    std::vector<IndexAndDistance> per_thread_best_node(static_cast<size_t>(
+        common_robotics_utilities::openmp_helpers::GetNumOmpThreads()));
     #pragma omp parallel for
     for (int64_t node_idx = 0; node_idx < (policy_graph_.Size() - 1);
          node_idx++)
@@ -918,9 +923,9 @@ private:
               current_config);
       if (is_cluster_member)
       {
-        const int32_t thread_id
-            = common_robotics_utilities::openmp_helpers
-                ::GetContextOmpThreadNum();
+        const size_t thread_id = static_cast<size_t>(
+            common_robotics_utilities::openmp_helpers
+                ::GetContextOmpThreadNum());
         const double expected_cost_to_goal
             = policy_dijkstras_result_.GetNodeDistance(node_idx);
         if (expected_cost_to_goal

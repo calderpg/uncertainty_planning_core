@@ -13,13 +13,17 @@
 #include <random>
 #include <atomic>
 #include <Eigen/Geometry>
+
+#if defined(_OPENMP)
+#include <omp.h>
+#endif
+
 #include <common_robotics_utilities/math.hpp>
 #include <common_robotics_utilities/openmp_helpers.hpp>
 #include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/print.hpp>
 #include <uncertainty_planning_core/ros_integration.hpp>
 #include <uncertainty_planning_core/uncertainty_planning_core.hpp>
-#include <omp.h>
 
 namespace uncertainty_planning_core
 {
@@ -363,10 +367,9 @@ private:
   inline void ResetGenerators(const int64_t prng_seed)
   {
     // Prepare the default RNG
-    uncertainty_planning_core::PRNG prng(prng_seed);
-    // Temp seed distribution
-    std::uniform_int_distribution<int64_t>
-        seed_dist(0, std::numeric_limits<int64_t>::max());
+    uncertainty_planning_core::PRNG prng(
+        static_cast<typename uncertainty_planning_core::PRNG::result_type>(
+            prng_seed));
     // Get the number of threads we're using
     const int32_t num_threads
         = common_robotics_utilities::openmp_helpers::GetNumOmpThreads();
@@ -375,7 +378,7 @@ private:
     unit_real_distributions_.clear();
     for (int32_t tidx = 0; tidx < num_threads; tidx++)
     {
-      rngs_.push_back(uncertainty_planning_core::PRNG(seed_dist(prng)));
+      rngs_.push_back(uncertainty_planning_core::PRNG(prng()));
       unit_real_distributions_.push_back(
             std::uniform_real_distribution<double>(0.0, 1.0));
     }
@@ -650,7 +653,8 @@ private:
     // Get the nearest neighbor (ignoring the disabled states)
     std::vector<std::pair<int64_t, uint64_t>>
         per_thread_bests(
-            common_robotics_utilities::openmp_helpers::GetNumOmpThreads(),
+            static_cast<size_t>(
+                common_robotics_utilities::openmp_helpers::GetNumOmpThreads()),
             std::pair<int64_t, uint64_t>(-1, 0));
     // Greedy best-first expansion strategy
     #pragma omp parallel for
@@ -928,7 +932,8 @@ private:
           get_planning_state_fn
               = [&] (const int64_t state_index) -> TaskPlanningState&
       {
-        return result_states.at(state_index).MutableState();
+        return
+            result_states.at(static_cast<size_t>(state_index)).MutableState();
       };
       std::vector<int64_t> state_indices(result_states.size(), 0);
       std::iota(state_indices.begin(), state_indices.end(), 0);
@@ -1242,7 +1247,8 @@ public:
               + " results selected best outcome "
               + std::to_string(best_outcome_idx) + " with expected cost "
               + std::to_string(best_outcome_cost), 2);
-          const State& best_outcome = action_results.at(best_outcome_idx);
+          const State& best_outcome =
+              action_results.at(static_cast<size_t>(best_outcome_idx));
           execution_trace.push_back(best_outcome);
           post_outcome_callback_fn(action_results, best_outcome_idx);
         }

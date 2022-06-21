@@ -12,12 +12,12 @@
 #include <memory>
 #include <chrono>
 #include <random>
+
+#include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/math.hpp>
 #include <common_robotics_utilities/print.hpp>
-#include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
 #include <uncertainty_planning_core/ros_integration.hpp>
-#include <omp.h>
 
 namespace uncertainty_planning_core
 {

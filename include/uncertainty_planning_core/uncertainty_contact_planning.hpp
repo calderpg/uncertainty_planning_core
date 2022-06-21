@@ -14,22 +14,21 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+
 #include <common_robotics_utilities/color_builder.hpp>
-#include <common_robotics_utilities/math.hpp>
-#include <common_robotics_utilities/zlib_helpers.hpp>
+#include <common_robotics_utilities/conversions.hpp>
 #include <common_robotics_utilities/math.hpp>
 #include <common_robotics_utilities/ros_conversions.hpp>
 #include <common_robotics_utilities/simple_knearest_neighbors.hpp>
-#include <common_robotics_utilities/simple_rrt_planner.hpp>
 #include <common_robotics_utilities/simple_robot_model_interface.hpp>
-#include <uncertainty_planning_core/ros_integration.hpp>
-#include <uncertainty_planning_core/simple_sampler_interface.hpp>
-#include <uncertainty_planning_core/simple_outcome_clustering_interface.hpp>
-#include <uncertainty_planning_core/uncertainty_planner_state.hpp>
-#include <uncertainty_planning_core/simple_simulator_interface.hpp>
+#include <common_robotics_utilities/simple_rrt_planner.hpp>
+#include <common_robotics_utilities/zlib_helpers.hpp>
 #include <uncertainty_planning_core/execution_policy.hpp>
-#include <common_robotics_utilities/conversions.hpp>
-#include <omp.h>
+#include <uncertainty_planning_core/ros_integration.hpp>
+#include <uncertainty_planning_core/simple_outcome_clustering_interface.hpp>
+#include <uncertainty_planning_core/simple_sampler_interface.hpp>
+#include <uncertainty_planning_core/simple_simulator_interface.hpp>
+#include <uncertainty_planning_core/uncertainty_planner_state.hpp>
 
 namespace uncertainty_planning_core
 {
@@ -2565,7 +2564,8 @@ protected:
           get_planning_state_fn
               = [&] (const int64_t state_index) -> UncertaintyPlanningState&
       {
-        return result_states.at(state_index).MutableState();
+        return
+            result_states.at(static_cast<size_t>(state_index)).MutableState();
       };
       std::vector<int64_t> state_indices(result_states.size(), 0);
       std::iota(state_indices.begin(), state_indices.end(), 0);
