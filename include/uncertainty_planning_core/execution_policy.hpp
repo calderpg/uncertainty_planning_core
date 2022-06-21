@@ -304,8 +304,7 @@ public:
   {
     const auto complete_search_results
         = common_robotics_utilities::simple_graph_search
-            ::PerformDijkstrasAlgorithm<UncertaintyPlanningState>(
-                initial_graph, start_index);
+            ::PerformDijkstrasAlgorithm(initial_graph, start_index);
     for (int64_t idx = 0; idx < complete_search_results.Size(); idx++)
     {
       const int64_t previous_index
