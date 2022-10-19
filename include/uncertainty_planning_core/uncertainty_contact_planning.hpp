@@ -437,15 +437,6 @@ protected:
       const int64_t raw_parent_index, const int64_t pruned_parent_index,
       UncertaintyPlanningTree& pruned_planner_tree)
   {
-    if (!raw_planner_tree.GetNodeImmutable(raw_parent_index).IsInitialized())
-    {
-      throw std::invalid_argument("raw_parent_state is uninitialized");
-    }
-    if (!pruned_planner_tree.GetNodeImmutable(
-            pruned_parent_index).IsInitialized())
-    {
-      throw std::invalid_argument("pruned_parent_state is uninitialized");
-    }
     // Clear the child indices, so we can update them with new values later
     pruned_planner_tree.GetNodeMutable(
         pruned_parent_index).ClearChildIndicies();
@@ -1313,10 +1304,6 @@ protected:
     {
       UncertaintyPlanningTreeState& current_state
           = intermediate_planner_tree.GetNodeMutable(idx);
-      if (current_state.IsInitialized() == false)
-      {
-        throw std::runtime_error("current_state is uninitialized");
-      }
       // If we're on a path to the goal, we always keep it
       if (current_state.GetValueImmutable().GetGoalPfeasibility() > 0.0)
       {
@@ -1348,10 +1335,6 @@ protected:
     UncertaintyPlanningTree pruned_planner_tree;
     // Add root state
     const auto& root_state = intermediate_planner_tree.GetNodeImmutable(0);
-    if (root_state.IsInitialized() == false)
-    {
-      throw std::runtime_error("root_state is uninitialized");
-    }
     pruned_planner_tree.AddNode(root_state.GetValueImmutable());
     // Recursive call to extract live branches
     ExtractChildStates(intermediate_planner_tree, 0, 0, pruned_planner_tree);
