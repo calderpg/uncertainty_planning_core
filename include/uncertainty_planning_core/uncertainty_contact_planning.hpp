@@ -696,8 +696,8 @@ public:
       const StateDistanceFunction& state_distance_fn,
       const LoggingFunction& logging_fn)
   {
-    const common_robotics_utilities::openmp_helpers::DegreeOfParallelism
-        knn_parallelism(true);
+    const auto knn_parallelism = common_robotics_utilities::openmp_helpers
+        ::DegreeOfParallelism::FromOmp();
     const std::function<double(
         const UncertaintyPlanningTreeState&,
         const UncertaintyPlanningState&)> tree_state_distance_fn =
