@@ -696,6 +696,8 @@ public:
       const StateDistanceFunction& state_distance_fn,
       const LoggingFunction& logging_fn)
   {
+    const auto knn_parallelism = common_robotics_utilities::openmp_helpers
+        ::DegreeOfParallelism::FromOmp();
     const std::function<double(
         const UncertaintyPlanningTreeState&,
         const UncertaintyPlanningState&)> tree_state_distance_fn =
@@ -714,9 +716,9 @@ public:
     };
     const auto nearests
         = common_robotics_utilities::simple_knearest_neighbors
-            ::GetKNearestNeighborsParallel(
+            ::GetKNearestNeighbors(
                 planner_nodes.GetNodesImmutable(), random_state,
-                tree_state_distance_fn, 1);
+                tree_state_distance_fn, 1, knn_parallelism);
     const int64_t best_index = nearests.at(0).Index();
     const double best_distance = nearests.at(0).Distance();
     logging_fn(
