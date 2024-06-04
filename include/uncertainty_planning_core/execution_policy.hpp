@@ -1079,9 +1079,11 @@ private:
           = planner_tree_.GetNodeImmutable(possible_match_state_idx);
       const UncertaintyPlanningState& possible_match_state
           = possible_match_tree_state.GetValueImmutable();
+      const auto possible_match_node_maybe_particles
+          = possible_match_state.GetParticlePositionsImmutable();
       const std::vector<Configuration, ConfigAlloc>&
           possible_match_node_particles
-              = possible_match_state.GetParticlePositionsImmutable().Value();
+              = possible_match_node_maybe_particles.Value();
       const bool is_cluster_member
           = particle_clustering_fn(
               possible_match_node_particles, current_config);
@@ -1153,9 +1155,11 @@ private:
             = planner_tree_.GetNodeImmutable(possible_match_state_idx);
         const UncertaintyPlanningState& possible_match_state
             = possible_match_tree_state.GetValueImmutable();
+        const auto possible_match_node_maybe_particles
+            = possible_match_state.GetParticlePositionsImmutable();
         const std::vector<Configuration, ConfigAlloc>&
             possible_match_node_particles
-                = possible_match_state.GetParticlePositionsImmutable().Value();
+                = possible_match_node_maybe_particles.Value();
         const bool is_cluster_member
             = particle_clustering_fn(
                 possible_match_node_particles, current_config);

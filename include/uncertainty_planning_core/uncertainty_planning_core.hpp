@@ -332,8 +332,9 @@ inline double UserGoalCheckWrapperFn(
 {
   if (state.HasParticles())
   {
+    const auto maybe_particles = state.GetParticlePositionsImmutable();
     const std::vector<Configuration, ConfigAlloc>& particle_positions
-        = state.GetParticlePositionsImmutable().Value();
+        = maybe_particles.Value();
     const size_t num_particles = state.GetNumParticles();
     if (num_particles > 0)
     {
