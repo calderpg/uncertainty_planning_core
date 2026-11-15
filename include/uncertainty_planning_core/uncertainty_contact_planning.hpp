@@ -139,7 +139,6 @@ public:
   }
 };
 
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
 class ExecutionTimeLimit
 {
 public:
@@ -167,24 +166,6 @@ private:
   double seconds_ = 0.0;
   rclcpp::Clock::SharedPtr clock_;
 };
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-class ExecutionTimeLimit
-{
-public:
-  explicit ExecutionTimeLimit(const double seconds) : seconds_(seconds)
-  {
-    if (seconds_ < 0.0)
-    {
-      throw std::invalid_argument("Time limit cannot be less than zero seconds");
-    }
-  }
-
-  double Seconds() const { return seconds_; }
-
-private:
-  double seconds_ = 0.0;
-};
-#endif
 
 inline std::ostream& operator<<(
   std::ostream& strm, const ExecutionTimeLimit& time_limit)
@@ -253,11 +234,7 @@ public:
 private:
   double CurrentTime() const
   {
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
     return time_limit_.Clock().now().seconds();
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-    return ros::Time::now().toSec();
-#endif
   }
 
   OwningMaybe<double> start_time_;
@@ -635,9 +612,6 @@ public:
                 control_step_markers.markers.begin(),
                 control_step_markers.markers.end());
             display_fn(simulator_step_display_rep);
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-            ros::Duration(0.05).sleep();
-#endif
           }
         }
       }
@@ -1639,14 +1613,6 @@ public:
   {
     const uint32_t num_executions = static_cast<uint32_t>(start_configs.size());
     UncertaintyPlanningPolicy policy = immutable_policy;
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-    // Buffer for a teensy bit of time
-    for (size_t iter = 0; iter < 100; iter++)
-    {
-      ros::spinOnce();
-      ros::Duration(0.005).sleep();
-    }
-#endif
     std::vector<ConfigVector> policy_trajectories(num_executions);
     std::vector<PolicyExecutionPerformance> policy_execution_performance(
         num_executions);
@@ -2063,11 +2029,7 @@ protected:
         edge_marker.ns = policy_name;
         edge_marker.id = static_cast<int>(idx + 1);
         edge_marker.frame_locked = false;
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
         edge_marker.lifetime = rclcpp::Duration(0, 0);
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-        edge_marker.lifetime = ros::Duration(0.0);
-#endif
         edge_marker.type = Marker::ARROW;
         edge_marker.header.frame_id = simulator_ptr_->GetFrame();
         edge_marker.scale.x = marker_size;
@@ -2131,11 +2093,7 @@ protected:
       edge_marker.id = idx;
       idx++;
       edge_marker.frame_locked = false;
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
       edge_marker.lifetime = rclcpp::Duration(0, 0);
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-      edge_marker.lifetime = ros::Duration(0.0);
-#endif
       edge_marker.type = Marker::ARROW;
       edge_marker.header.frame_id = simulator_ptr_->GetFrame();
       edge_marker.scale.x = marker_size;

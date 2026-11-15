@@ -446,7 +446,6 @@ public:
 
 int main(int argc, char** argv)
 {
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("task_planner_adapter_test");
   // Get debug level
@@ -473,33 +472,7 @@ int main(int argc, char** argv)
       = static_cast<int32_t>(node->declare_parameter("prng_seed_init", -1));
   // Spin in a separate thread
   std::thread spinner([&]() { rclcpp::spin(node); });
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-  ros::init(argc, argv, "task_planner_adapter_test");
-  ros::NodeHandle nh;
-  ros::NodeHandle nhp;
-  // Get debug level
-  const int32_t debug_level = nhp.param(std::string("debug_level"), 0);
-  // Make display function
-  ros::Publisher display_debug_publisher =
-      nh.advertise<visualization_msgs::MarkerArray>(
-        "task_planner_debug_display_markers", 1, true);
-  const uncertainty_planning_core::DisplayFunction display_fn
-      = [&] (const visualization_msgs::MarkerArray& markers)
-  {
-    display_debug_publisher.publish(markers);
-  };
-  // Make logging function
-  const uncertainty_planning_core::LoggingFunction logging_fn
-      = [&] (const std::string& msg, const int32_t level)
-  {
-    ROS_INFO("[%d] %s", level, msg.c_str());
-  };
-  // Get seed for PRNG
-  int32_t prng_seed_init
-      = static_cast<int32_t>(nhp.param(std::string("prng_seed_init"), -1));
-#else
-#error "Undefined or unknown UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION"
-#endif
+
   if (prng_seed_init == -1)
   {
     prng_seed_init = static_cast<int32_t>(
@@ -584,9 +557,9 @@ int main(int argc, char** argv)
   logging_fn(
       "Task execution statistics: "
       + common_robotics_utilities::print::Print(exec_result.Statistics()), 1);
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
+
   rclcpp::shutdown();
   spinner.join();
-#endif
+
   return 0;
 }
