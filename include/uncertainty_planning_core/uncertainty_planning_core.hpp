@@ -64,7 +64,6 @@ struct PLANNING_AND_EXECUTION_OPTIONS
   std::string executed_policy_file;
 };
 
-#if UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 2
 inline PLANNING_AND_EXECUTION_OPTIONS GetOptions(
     rclcpp::Node::SharedPtr node,
     const PLANNING_AND_EXECUTION_OPTIONS& initial_options)
@@ -140,80 +139,6 @@ inline PLANNING_AND_EXECUTION_OPTIONS GetOptions(
               static_cast<int>(options.policy_action_attempt_count)));
   return options;
 }
-#elif UNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION == 1
-inline PLANNING_AND_EXECUTION_OPTIONS GetOptions(
-    const PLANNING_AND_EXECUTION_OPTIONS& initial_options)
-{
-  PLANNING_AND_EXECUTION_OPTIONS options = initial_options;
-  // Get options via ROS params
-  ros::NodeHandle nhp("~");
-  options.planner_time_limit
-      = nhp.param(std::string("planner_time_limit"),
-                  options.planner_time_limit);
-  options.p_goal_reached_termination_threshold
-      = nhp.param(std::string("p_goal_reached_termination_threshold"),
-                  options.p_goal_reached_termination_threshold);
-  options.goal_bias = nhp.param(std::string("goal_bias"), options.goal_bias);
-  options.step_size = nhp.param(std::string("step_size"), options.step_size);
-  options.goal_probability_threshold
-      = nhp.param(std::string("goal_probability_threshold"),
-                  options.goal_probability_threshold);
-  options.goal_distance_threshold
-      = nhp.param(std::string("goal_distance_threshold"),
-                  options.goal_distance_threshold);
-  options.connect_after_first_solution
-      = nhp.param(std::string("connect_after_first_solution"),
-                  options.connect_after_first_solution);
-  options.feasibility_alpha
-      = nhp.param(std::string("feasibility_alpha"),
-                  options.feasibility_alpha);
-  options.variance_alpha
-      = nhp.param(std::string("variance_alpha"), options.variance_alpha);
-  options.num_particles
-      = static_cast<uint32_t>(nhp.param(std::string("num_particles"),
-                              static_cast<int>(options.num_particles)));
-  options.planner_log_file
-      = nhp.param(std::string("planner_log_file"), options.planner_log_file);
-  options.planned_policy_file
-      = nhp.param(std::string("planned_policy_file"),
-                  options.planned_policy_file);
-  options.policy_action_attempt_count
-      = static_cast<uint32_t>(
-          nhp.param(std::string("policy_action_attempt_count"),
-                    static_cast<int>(options.policy_action_attempt_count)));
-  options.debug_level
-      = nhp.param(std::string("debug_level"), options.debug_level);
-  options.use_contact
-      = nhp.param(std::string("use_contact"), options.use_contact);
-  options.use_reverse
-      = nhp.param(std::string("use_reverse"), options.use_reverse);
-  options.num_policy_simulations
-      = static_cast<uint32_t>(
-          nhp.param(std::string("num_policy_simulations"),
-                    static_cast<int>(options.num_policy_simulations)));
-  options.num_policy_executions
-      = static_cast<uint32_t>(
-          nhp.param(std::string("num_policy_executions"),
-                    static_cast<int>(options.num_policy_executions)));
-  options.policy_log_file
-      = nhp.param(std::string("policy_log_file"), options.policy_log_file);
-  options.executed_policy_file
-      = nhp.param(std::string("executed_policy_file"),
-                  options.executed_policy_file);
-  options.max_exec_actions
-      = static_cast<uint32_t>(
-          nhp.param(std::string("max_exec_actions"),
-                    static_cast<int>(options.max_exec_actions)));
-  options.max_policy_exec_time
-      = ExecutionTimeLimit(nhp.param(std::string("max_policy_exec_time"),
-                                     options.max_policy_exec_time.Seconds()));
-  options.policy_action_attempt_count
-      = static_cast<uint32_t>(
-          nhp.param(std::string("policy_action_attempt_count"),
-                    static_cast<int>(options.policy_action_attempt_count)));
-  return options;
-}
-#endif
 
 // Policy and tree type definitions
 

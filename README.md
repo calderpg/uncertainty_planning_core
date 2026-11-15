@@ -15,7 +15,7 @@ While the planner and execution policy are themselves template-based, this packa
 
 `uncertainty_planning_core` is a ROS package.
 
-Thus, it is best to build it within a ROS workspace:
+As provided, `uncertainty_planning_core` should be built in a ROS 2 workspace:
 
 ```sh
 mkdir -p ~/ws/src
@@ -23,18 +23,9 @@ cd ~/ws/src
 git clone https://github.com/calderpg/uncertainty_planning_core
 ```
 
-This package officially supports [ROS 1 Melodic](http://wiki.ros.org/ROS/Installation)
-and [ROS 2 Dashing+](https://index.ros.org/doc/ros2/Installation/) distributions, but
-ROS 1 Kinetic should also be compatible.
-Make sure to symlink the corresponding `CMakeLists.txt` and `package.xml` files
-for the ROS distribution of choice:
-
-*For ROS 1 Melodic*
-```sh
-cd ~/ws/src/uncertainty_planning_core
-ln -sT CMakeLists.txt.ros1 CMakeLists.txt
-ln -sT package.xml.ros1 package.xml
-```
+This package officially supports
+[ROS 2 Dashing+](https://index.ros.org/doc/ros2/Installation/) and newer
+distributions.
 
 *For ROS 2 Dashing+*
 ```sh
@@ -53,21 +44,24 @@ rosdep install -i -y --from-path src
 
 ## Building
 
-Use [`catkin_make`](http://wiki.ros.org/catkin/commands/catkin_make) or
-[`colcon`](https://colcon.readthedocs.io/en/released/) accordingly.
-
-*For ROS 1 Melodic*
-```sh
-cd ~/ws
-catkin_make  # the entire workspace
-catkin_make --pkg uncertainty_planning_core  # the package only
-```
+Use [`colcon`](https://colcon.readthedocs.io/en/released/):
 
 *For ROS 2 Dashing +*
 ```sh
 cd ~/ws
 colcon build  # the entire workspace
 colcon build --packages-select uncertainty_planning_core  # the package only
+```
+
+## Testing
+
+Use [`colcon`](https://colcon.readthedocs.io/en/released/):
+
+*For ROS 2 Dashing+*
+```sh
+cd ~/ws
+colcon test --event-handlers=console_direct+  # the entire workspace
+colcon test --event-handlers=console_direct+ --packages-select uncertainty_planning_core  # the package only
 ```
 
 ## Dependencies

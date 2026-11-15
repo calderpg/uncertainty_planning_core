@@ -1,41 +1,19 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(uncertainty_planning_core)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-             roscpp visualization_msgs common_robotics_utilities)
+find_package(ament_cmake_ros REQUIRED)
+
+find_package(common_robotics_utilities REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-find_package(cmake_modules REQUIRED)
 find_package(Eigen3 REQUIRED)
 set(Eigen3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 find_package(OpenMP)
 
 ## We don't depend on Drake, but we do use different build flags if present.
 find_package(drake QUIET)
-
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## LIBRARIES: libraries you create in this project
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project
-catkin_package(INCLUDE_DIRS
-               include
-               LIBRARIES
-               ${PROJECT_NAME}
-               CATKIN_DEPENDS
-               roscpp
-               visualization_msgs
-               common_robotics_utilities
-               DEPENDS
-               Eigen3
-               CFG_EXTRAS ${PROJECT_NAME}-extras.cmake)
 
 ###########
 ## Build ##
@@ -44,14 +22,13 @@ catkin_package(INCLUDE_DIRS
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(include SYSTEM ${catkin_INCLUDE_DIRS}
-                                   ${Eigen3_INCLUDE_DIRS})
+include_directories(include SYSTEM ${Eigen3_INCLUDE_DIRS})
 
 ## Build options
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 cmake_policy(SET CMP0069 NEW)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Werror)
@@ -70,8 +47,6 @@ else()
     message(STATUS "Drake NOT found, enabling -march=native")
     add_compile_options(-march=native)
 endif()
-
-add_definitions(-DUNCERTAINTY_PLANNING_CORE__SUPPORTED_ROS_VERSION=1)
 
 ## It's not clear if add_compile_options does the right things for flags that
 ## may differ between languages and target type.
@@ -99,8 +74,8 @@ set(UNCERTAINTY_PLANNING_CORE_SOURCES
 ################
 
 add_library(${PROJECT_NAME} ${UNCERTAINTY_PLANNING_CORE_SOURCES})
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+ament_target_dependencies(${PROJECT_NAME} common_robotics_utilities)
+ament_target_dependencies(${PROJECT_NAME} SYSTEM rclcpp visualization_msgs)
 
 ####################################################
 # Example of task-level planning using the adapter #
@@ -108,9 +83,11 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 add_executable(task_planner_adapter_example
                src/task_planner_adapter_example.cpp)
-add_dependencies(task_planner_adapter_example ${catkin_EXPORTED_TARGETS})
-target_link_libraries(task_planner_adapter_example ${PROJECT_NAME}
-                                                   ${catkin_LIBRARIES})
+ament_target_dependencies(task_planner_adapter_example
+                          common_robotics_utilities)
+ament_target_dependencies(task_planner_adapter_example
+                          SYSTEM rclcpp visualization_msgs)
+target_link_libraries(task_planner_adapter_example ${PROJECT_NAME})
 
 #############
 ## Install ##
@@ -118,13 +95,22 @@ target_link_libraries(task_planner_adapter_example ${PROJECT_NAME}
 
 ## Mark library for installation
 install(TARGETS ${PROJECT_NAME} task_planner_adapter_example
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )
 ## Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+install(DIRECTORY include/
+    DESTINATION include
     FILES_MATCHING PATTERN "*.hpp"
     PATTERN ".svn" EXCLUDE
 )
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+ament_export_dependencies(common_robotics_utilities)
+ament_export_dependencies(rclcpp)
+ament_export_dependencies(visualization_msgs)
+
+ament_package()
