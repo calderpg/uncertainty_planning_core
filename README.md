@@ -24,15 +24,8 @@ git clone https://github.com/calderpg/uncertainty_planning_core
 ```
 
 This package officially supports
-[ROS 2 Dashing+](https://index.ros.org/doc/ros2/Installation/) and newer
+[ROS 2 Jazzy](https://docs.ros.org/en/rolling/Installation.html) and newer
 distributions.
-
-*For ROS 2 Dashing+*
-```sh
-cd ~/ws/src/uncertainty_planning_core
-ln -sT CMakeLists.txt.ros2 CMakeLists.txt
-ln -sT package.xml.ros2 package.xml
-```
 
 Finally, use [`rosdep`](https://docs.ros.org/independent/api/rosdep/html/)
 to ensure all dependencies in the `package.xml` are satisfied:
@@ -46,7 +39,6 @@ rosdep install -i -y --from-path src
 
 Use [`colcon`](https://colcon.readthedocs.io/en/released/):
 
-*For ROS 2 Dashing +*
 ```sh
 cd ~/ws
 colcon build  # the entire workspace
@@ -57,7 +49,6 @@ colcon build --packages-select uncertainty_planning_core  # the package only
 
 Use [`colcon`](https://colcon.readthedocs.io/en/released/):
 
-*For ROS 2 Dashing+*
 ```sh
 cd ~/ws
 colcon test --event-handlers=console_direct+  # the entire workspace
