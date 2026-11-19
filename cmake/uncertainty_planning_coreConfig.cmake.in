@@ -1,0 +1,18 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(common_robotics_utilities)
+find_dependency(Eigen3)
+if("@OpenMP_CXX_FOUND@")
+  find_dependency(OpenMP)
+endif()
+find_dependency(rclcpp)
+find_dependency(visualization_msgs)
+
+include("${CMAKE_CURRENT_LIST_DIR}/uncertainty_planning_coreTargets.cmake")
+check_required_components(uncertainty_planning_core)
+
+# The ROS 2 convention, which ament_target_dependencies() on Jazzy and older
+# also reads.
+set(uncertainty_planning_core_TARGETS
+    uncertainty_planning_core::uncertainty_planning_core)
